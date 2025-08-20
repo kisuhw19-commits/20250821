@@ -16,6 +16,19 @@ document.getElementById('uploadBtn').addEventListener('click', () => {
     }
 });
 
+const firebaseConfig = {
+    apiKey: "AIzaSyBkGJcDi549PMqkYE9kCUxbwuEgyTSEmkM",
+    authDomain: "project-6457837950128637752.firebaseapp.com",
+    projectId: "project-6457837950128637752",
+    storageBucket: "project-6457837950128637752.firebasestorage.app",
+    messagingSenderId: "796576141612",
+    appId: "1:796576141612:web:d05fcbaa99e2f840209c89"
+};
+
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
 function processCSV(csvText) {
     const lines = csvText.split('\n').filter(line => line.trim() !== ''); // Remove empty lines
     if (lines.length === 0) {
@@ -107,4 +120,65 @@ function processCSV(csvText) {
     }
 
     document.getElementById('output').innerHTML = analysisResultHtml;
+
+    // Save data to Firestore
+    saveDataToFirestore(groupedData);
+}
+
+function saveDataToFirestore(data) {
+    const statusDiv = document.getElementById('output');
+    statusDiv.innerHTML += '<p class="status-message">Saving data to database...</p>';
+
+    const batch = db.batch();
+    const collectionRef = db.collection('training_reports');
+    let documentCount = 0;
+
+    for (const sessionName in data) {
+        const sessionRows = data[sessionName];
+        const numericColumns = {};
+        let rowCount = 0;
+
+        sessionRows.forEach(row => {
+            rowCount++;
+            for (const key in row) {
+                const value = parseFloat(row[key]);
+                if (!isNaN(value)) {
+                    if (!numericColumns[key]) {
+                        numericColumns[key] = 0;
+                    }
+                    numericColumns[key] += value;
+                }
+            }
+        });
+
+        const averages = {};
+        const excludeColumns = ['날짜', '액티비티 이름', '시작시간', '종료시간', '등번호', '세션 타입'];
+        for (const metric in numericColumns) {
+            if (!excludeColumns.includes(metric)) {
+                const average = numericColumns[metric] / rowCount;
+                averages[metric] = average;
+            }
+        }
+        
+        const docRef = collectionRef.doc(); // Automatically generate ID
+        batch.set(docRef, {
+            sessionName: sessionName,
+            rowCount: rowCount,
+            averages: averages,
+            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        documentCount++;
+    }
+
+    if (documentCount > 0) {
+        batch.commit().then(() => {
+            statusDiv.innerHTML += '<p class="success-message">Data successfully saved to Firestore!</p>';
+            console.log('Data successfully saved!');
+        }).catch((error) => {
+            statusDiv.innerHTML += `<p class="error-message">Error saving data: ${error.message}</p>`;
+            console.error('Error writing document: ', error);
+        });
+    } else {
+        statusDiv.innerHTML += '<p class="info-message">No data to save.</p>';
+    }
 }
