@@ -57,3 +57,22 @@ th, td {
 th {
     background-color: #f2f2f2;
 }
+
+/* Styles for Firebase status messages */
+.status-message {
+    margin-top: 10px;
+    font-style: italic;
+    color: #555;
+}
+
+.success-message {
+    margin-top: 10px;
+    color: green;
+    font-weight: bold;
+}
+
+.error-message {
+    margin-top: 10px;
+    color: red;
+    font-weight: bold;
+}
