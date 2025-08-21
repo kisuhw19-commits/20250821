@@ -1,20 +1,52 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Daily Training Report</title>
     <link rel="stylesheet" href="style.css">
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
 </head>
 <body>
     <div class="container">
-        <h1>훈련 데이터 파일을 업로드 하세요.</h1>
-        <input type="file" id="csvFile" accept=".csv">
-        <button id="uploadBtn">Upload</button>
+        <h1> GPS DATA ANALYZER</h1>
+        
+        <div id="firebaseStatus" class="firebase-status firebase-disconnected">
+            🔄 Firebase 연결 중...
+        </div>
+        
+        <div class="upload-section">
+            <div class="file-input-wrapper">
+                <input type="file" id="csvFile" accept=".csv">
+                <label for="csvFile" class="file-input-label">
+                    📁 CSV 파일 선택
+                </label>
+            </div>
+            <div id="fileName" class="file-name"></div>
+            
+            <div class="button-group">
+                <button id="uploadBtn">📊 데이터 분석</button>
+                <button id="saveBtn" class="btn-secondary">💾 데이터베이스 저장</button>
+                <button id="loadBtn" class="btn-secondary">📋 저장된 데이터 보기</button>
+                <button id="clearBtn" class="btn-danger">🗑️ 초기화</button>
+            </div>
+        </div>
+
+        <div id="loading" class="loading">
+            <div class="loading-spinner"></div>
+            <div id="loadingText">데이터를 분석하고 있습니다...</div>
+        </div>
+
         <div id="output"></div>
     </div>
+
+    <!-- 외부 라이브러리 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+    
+    <!-- 설정 파일 -->
+    <script src="config.js"></script>
+    <!-- 메인 스크립트 -->
     <script src="script.js"></script>
 </body>
 </html>
